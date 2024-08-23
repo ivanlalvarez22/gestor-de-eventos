@@ -1,6 +1,7 @@
 .App {
   font-family: Arial, sans-serif;
   display: flex;
+  flex-direction: column; /* Cambiado a columna para que el iframe quede debajo de la tarjeta */
   justify-content: center;
   align-items: center;
   height: 100vh;
@@ -70,4 +71,10 @@
 
 .btn.secondary:hover {
   background-color: #c33d30;
+}
+
+.googleCalendar {
+  display: flex;
+  justify-content: center; /* Centra el iframe horizontalmente */
+  margin-top: 30px;
 }

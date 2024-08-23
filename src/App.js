@@ -32,7 +32,7 @@ function App() {
       },
     });
     if (error) {
-      alert("Error loggin in to Google provider with Supabase");
+      alert("Error iniciando sesión con Google en Supabase");
       console.log(error);
     }
   }
@@ -63,12 +63,15 @@ function App() {
       },
     };
 
+    const calendarId = "ivanlalvarez.22@gmail.com"; // ID del calendario
+
     await fetch(
-      "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+      `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`,
       {
         method: "POST",
         headers: {
           Authorization: "Bearer " + session.provider_token,
+          "Content-Type": "application/json", // Asegúrate de incluir este encabezado
         },
         body: JSON.stringify(event),
       }
@@ -89,80 +92,91 @@ function App() {
       <div className="card">
         {session ? (
           <>
-            <h2 className="title">
-              Hola{" "}
-              <code style={{ color: "red", fontFamily: "Arial" }}>
-                {session.user.email}
-              </code>
-            </h2>
-            <div className="input-group">
-              <label>Inicio de su evento</label>
-              <DatePicker
-                selected={start}
-                onChange={(date) => setStart(date)}
-                showTimeSelect
-                dateFormat="dd/MM/yyyy, p"
-                className="input"
-              />
-            </div>
-            <div className="input-group">
-              <label>Finalización de su evento</label>
-              <DatePicker
-                selected={end}
-                onChange={(date) => setEnd(date)}
-                showTimeSelect
-                dateFormat="dd/MM/yyyy, p"
-                className="input"
-              />
-            </div>
-            <div className="input-group">
-              <label>Nombre del evento</label>
-              <input
-                type="text"
-                onChange={(e) => setEventName(e.target.value)}
-                value={eventName}
-                className="input"
-                placeholder="Ingresa el nombre del evento"
-              />
-            </div>
-            <div className="input-group">
-              <label>Descripción del evento</label>
-              <input
-                type="text"
-                onChange={(e) => setEventDescription(e.target.value)}
-                value={eventDescription}
-                className="input"
-                placeholder="Ingresa la descripción del evento"
-              />
-            </div>
-            <div className="input-group">
-              <label>Ubicación del evento</label>
-              <input
-                type="text"
-                onChange={(e) => setLocation(e.target.value)}
-                value={location}
-                className="input"
-                placeholder="Ingresa la ubicación del evento"
-              />
-            </div>
-            <div className="buttons">
-              <button
-                className="btn primary"
-                onClick={() => createCalendarEvent()}
-              >
-                Crear evento en el calendario
-              </button>
-              <button className="btn secondary" onClick={() => signOut()}>
-                Cerrar Sesión
-              </button>
+            <div>
+              <h2 className="title">
+                Hola{" "}
+                <code style={{ color: "red", fontFamily: "Arial" }}>
+                  {session.user.email}
+                </code>
+              </h2>
+              <div className="input-group">
+                <label>Inicio de su evento</label>
+                <DatePicker
+                  selected={start}
+                  onChange={(date) => setStart(date)}
+                  showTimeSelect
+                  dateFormat="dd/MM/yyyy, p"
+                  className="input"
+                />
+              </div>
+              <div className="input-group">
+                <label>Finalización de su evento</label>
+                <DatePicker
+                  selected={end}
+                  onChange={(date) => setEnd(date)}
+                  showTimeSelect
+                  dateFormat="dd/MM/yyyy, p"
+                  className="input"
+                />
+              </div>
+              <div className="input-group">
+                <label>Nombre del evento</label>
+                <input
+                  type="text"
+                  onChange={(e) => setEventName(e.target.value)}
+                  value={eventName}
+                  className="input"
+                  placeholder="Ingresa el nombre del evento"
+                />
+              </div>
+              <div className="input-group">
+                <label>Descripción del evento</label>
+                <input
+                  type="text"
+                  onChange={(e) => setEventDescription(e.target.value)}
+                  value={eventDescription}
+                  className="input"
+                  placeholder="Ingresa la descripción del evento"
+                />
+              </div>
+              <div className="input-group">
+                <label>Ubicación del evento</label>
+                <input
+                  type="text"
+                  onChange={(e) => setLocation(e.target.value)}
+                  value={location}
+                  className="input"
+                  placeholder="Ingresa la ubicación del evento"
+                />
+              </div>
+              <div className="buttons">
+                <button className="btn primary" onClick={createCalendarEvent}>
+                  Crear evento en el calendario
+                </button>
+                <button className="btn secondary" onClick={signOut}>
+                  Cerrar Sesión
+                </button>
+              </div>
             </div>
           </>
         ) : (
-          <button className="btn primary" onClick={() => googleSignIn()}>
+          <button className="btn primary" onClick={googleSignIn}>
             Iniciar Sesión con Google
           </button>
         )}
       </div>
+      {session && (
+        <div className="googleCalendar">
+          <iframe
+            src="https://calendar.google.com/calendar/embed?src=ivanlalvarez.22%40gmail.com&ctz=America%2FArgentina%2FBuenos_Aires"
+            style={{ border: "0" }}
+            width="800"
+            height="400"
+            frameBorder="0"
+            title="Google Calendar"
+          ></iframe>
+        </div>
+      )}
     </div>
   );
 }
