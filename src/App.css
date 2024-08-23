@@ -1,38 +1,73 @@
 .App {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-image: url("https://e0.pxfuel.com/wallpapers/474/300/desktop-wallpaper-i-love-santiago-del-estero-realistic-balloons-blue-wooden-background-day-of-santiago-del-estero-argentine-provinces-flag-of-santiago-del-estero-argentina-balloon-with-flag-provinces-of-argentina.jpg");
+  background-size: cover;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con 90% opacidad */
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra más notoria */
+  width: 400px;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.title {
+  margin-bottom: 20px;
+  color: #333;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.input {
+  width: calc(100% - 20px);
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+}
+
+.buttons {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.btn.primary {
+  background-color: #007bff;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.btn.secondary {
+  background-color: #f44336;
+  color: white;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.btn.primary:hover {
+  background-color: #0056b3;
+}
+
+.btn.secondary:hover {
+  background-color: #c33d30;
 }
