@@ -1,58 +1,69 @@
 .App {
   font-family: Arial, sans-serif;
   display: flex;
-  flex-direction: column; /* Cambiado a columna para que el iframe quede debajo de la tarjeta */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   background-image: url("https://e0.pxfuel.com/wallpapers/474/300/desktop-wallpaper-i-love-santiago-del-estero-realistic-balloons-blue-wooden-background-day-of-santiago-del-estero-argentine-provinces-flag-of-santiago-del-estero-argentina-balloon-with-flag-provinces-of-argentina.jpg");
   background-size: cover;
+  padding: 20px;
+  box-sizing: border-box;
+  color: #fff;
+  overflow: auto; /* Asegura que el contenido pueda desplazarse si es necesario */
 }
 
 .card {
-  background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con 90% opacidad */
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra más notoria */
-  width: 400px;
-  text-align: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 600px; /* Ajusta según sea necesario */
+  box-sizing: border-box;
+  margin-top: 20px; /* Añade un margen superior para separar de los bordes */
 }
 
 .title {
   margin-bottom: 20px;
   color: #333;
+  font-size: 24px;
+  text-align: center;
 }
 
 .input-group {
-  margin-bottom: 15px;
-  text-align: left;
+  margin-bottom: 15px; /* Reduce el margen inferior */
 }
 
-.label {
-  margin-bottom: 5px;
+.input-group label {
+  display: block;
+  margin-bottom: 5px; /* Reduce el margen inferior */
   font-weight: bold;
+  color: #333;
 }
 
 .input {
-  width: calc(100% - 20px);
+  width: calc(100% - 20px); /* Ajusta el ancho teniendo en cuenta el padding */
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 8px;
   border: 1px solid #ccc;
-  margin-top: 5px;
 }
 
 .buttons {
   display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px; /* Añade un margen superior para separar de los elementos anteriores */
 }
 
 .btn {
-  padding: 10px 20px;
+  padding: 12px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
 }
 
 .btn.primary {
@@ -74,7 +85,14 @@
 }
 
 .googleCalendar {
-  display: flex;
-  justify-content: center; /* Centra el iframe horizontalmente */
+  width: 100%;
+  max-width: 600px; /* Ajusta según sea necesario */
   margin-top: 30px;
+}
+
+.googleCalendar iframe {
+  width: 100%;
+  height: 600px;
+  border: 0;
+  border-radius: 8px;
 }
