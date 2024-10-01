@@ -7,21 +7,22 @@
   min-height: 100vh;
   background-image: url("https://e0.pxfuel.com/wallpapers/474/300/desktop-wallpaper-i-love-santiago-del-estero-realistic-balloons-blue-wooden-background-day-of-santiago-del-estero-argentine-provinces-flag-of-santiago-del-estero-argentina-balloon-with-flag-provinces-of-argentina.jpg");
   background-size: cover;
+  background-position: center;
   padding: 20px;
   box-sizing: border-box;
   color: #fff;
-  overflow: auto; /* Asegura que el contenido pueda desplazarse si es necesario */
+  overflow: auto;
 }
 
 .card {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.95);
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 600px; /* Ajusta según sea necesario */
+  max-width: 600px;
   box-sizing: border-box;
-  margin-top: 20px; /* Añade un margen superior para separar de los bordes */
+  margin-top: 20px;
 }
 
 .title {
@@ -32,28 +33,39 @@
 }
 
 .input-group {
-  margin-bottom: 15px; /* Reduce el margen inferior */
+  margin-bottom: 10px;
 }
 
 .input-group label {
   display: block;
-  margin-bottom: 5px; /* Reduce el margen inferior */
+  margin-bottom: 5px;
   font-weight: bold;
   color: #333;
 }
 
 .input {
-  width: calc(100% - 20px); /* Ajusta el ancho teniendo en cuenta el padding */
+  width: 100%;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
+  box-sizing: border-box; /* Asegura que el padding y el border no causen desbordamiento */
+}
+
+.error {
+  color: red;
+  font-size: 0.85rem;
+  margin-left: 5px;
+}
+
+.input-error {
+  border-color: red;
 }
 
 .buttons {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-top: 20px; /* Añade un margen superior para separar de los elementos anteriores */
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .btn {
@@ -61,14 +73,16 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   text-align: center;
+  transition: background-color 0.3s ease;
 }
 
 .btn.primary {
   background-color: #007bff;
   color: white;
+  width: 100%;
 }
 
 .btn.secondary {
@@ -84,15 +98,23 @@
   background-color: #c33d30;
 }
 
+.googleCalendarContainer {
+  overflow-x: auto;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  margin-top: 20px;
+  opacity: 95%;
+}
+
 .googleCalendar {
   width: 100%;
-  max-width: 600px; /* Ajusta según sea necesario */
-  margin-top: 30px;
+  max-width: 600px;
 }
 
 .googleCalendar iframe {
   width: 100%;
-  height: 600px;
+  height: 500px;
   border: 0;
   border-radius: 8px;
 }

@@ -4,9 +4,14 @@ import {
   useSupabaseClient,
   useSessionContext,
 } from "@supabase/auth-helpers-react";
-import DatePicker from "react-datepicker";
+import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useState, useEffect } from "react";
+import { es } from "date-fns/locale";
+import { useState, useEffect, useCallback } from "react";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box"; // Importa Box
+
+registerLocale("es", es);
 
 function App() {
   const [start, setStart] = useState(new Date());
@@ -14,11 +19,29 @@ function App() {
   const [eventName, setEventName] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [loading, setLoading] = useState(false); // Estado de carga
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const session = useSession();
   const supabase = useSupabaseClient();
   const { isLoading } = useSessionContext();
+
+  const validateFields = useCallback(() => {
+    const validationErrors = {};
+    if (!eventName.trim()) validationErrors.eventName = "Campo obligatorio";
+    if (!eventDescription.trim())
+      validationErrors.eventDescription = "Campo obligatorio";
+    if (!location.trim()) validationErrors.location = "Campo obligatorio";
+    if (!start) validationErrors.start = "Campo obligatorio";
+    if (!end) validationErrors.end = "Campo obligatorio";
+    if (start && end && start >= end)
+      validationErrors.end = alert(
+        "La fecha de finalización debe ser posterior a la de inicio"
+      );
+
+    setErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0;
+  }, [eventName, eventDescription, location, start, end]);
 
   useEffect(() => {
     if (!session) return;
@@ -39,44 +62,61 @@ function App() {
     pingAuthSession();
     const interval = setInterval(() => {
       pingAuthSession();
-    }, 86400000); // 86400000 ms = 1 día
+    }, 86400000);
 
     return () => clearInterval(interval);
   }, [session, supabase]);
 
   if (isLoading || loading) {
-    return <div className="loading">Cargando...</div>; // Mensaje de carga
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh", // O ajusta según tu diseño
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
-  async function googleSignIn() {
+  const googleSignIn = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        scopes: "https://www.googleapis.com/auth/calendar",
-      },
-    });
-    setLoading(false);
-    if (error) {
-      alert("Error iniciando sesión con Google en Supabase");
-      console.log(error);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          scopes: "https://www.googleapis.com/auth/calendar",
+        },
+      });
+      if (error) {
+        throw new Error("Error iniciando sesión con Google en Supabase");
+      }
+    } catch (error) {
+      alert(error.message);
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  async function signOut() {
+  const signOut = async () => {
     setLoading(true);
-    await supabase.auth.signOut();
-    setLoading(false);
-  }
-
-  async function createCalendarEvent() {
-    if (!eventName || !eventDescription || !location || !start || !end) {
-      alert("Por favor, complete todos los campos antes de crear el evento.");
-      return;
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const createCalendarEvent = async () => {
+    if (!validateFields()) return;
 
     setLoading(true);
-    console.log("Creando evento en el calendario");
     const event = {
       summary: eventName,
       description: eventDescription,
@@ -93,28 +133,35 @@ function App() {
 
     const calendarId = "ivanlalvarez.22@gmail.com";
 
-    await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + session.provider_token,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(event),
+    try {
+      const response = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.provider_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(event),
+        }
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error?.message || "Hubo un error al crear el evento."
+        );
       }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        alert("Evento creado, revise su Google Calendar");
-      })
-      .catch((error) => {
-        console.error("Error al crear el evento:", error);
-        alert("Hubo un error al crear el evento. Por favor, intente de nuevo.");
-      })
-      .finally(() => setLoading(false)); // Asegura que se desactive el estado de carga
-  }
+
+      console.log(data);
+      alert("Evento creado, revise su Google Calendar");
+    } catch (error) {
+      console.error("Error al crear el evento:", error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="App">
@@ -125,84 +172,126 @@ function App() {
               <h2 className="title">
                 Hola{" "}
                 <code style={{ color: "red", fontFamily: "Arial" }}>
-                  {session.user.email}
+                  {session.user.user_metadata.name}
                 </code>
               </h2>
+
               <div className="input-group">
-                <label>Inicio de su evento</label>
+                <label>
+                  Inicio de su evento{" "}
+                  {errors.start && (
+                    <span className="error"> {errors.start}</span>
+                  )}
+                </label>
                 <DatePicker
                   selected={start}
-                  onChange={(date) => setStart(date)}
+                  onChange={setStart}
                   showTimeSelect
                   dateFormat="dd/MM/yyyy, p"
-                  className="input"
+                  locale="es"
+                  className={`input ${errors.start && "input-error"}`}
+                  popperPlacement="bottom-start"
                 />
               </div>
+
               <div className="input-group">
-                <label>Finalización de su evento</label>
+                <label>
+                  Finalización de su evento{" "}
+                  {errors.end && <span className="error"> {errors.end}</span>}
+                </label>
                 <DatePicker
                   selected={end}
-                  onChange={(date) => setEnd(date)}
+                  onChange={setEnd}
                   showTimeSelect
                   dateFormat="dd/MM/yyyy, p"
-                  className="input"
+                  locale="es"
+                  className={`input ${errors.end && "input-error"}`}
+                  popperPlacement="bottom-start"
                 />
               </div>
+
               <div className="input-group">
-                <label>Nombre del evento</label>
+                <label>
+                  Nombre del evento *{" "}
+                  {errors.eventName && (
+                    <span className="error"> {errors.eventName}</span>
+                  )}
+                </label>
                 <input
                   type="text"
                   onChange={(e) => setEventName(e.target.value)}
                   value={eventName}
-                  className="input"
-                  placeholder="Ingresa el nombre del evento"
+                  className={`input ${errors.eventName && "input-error"}`}
+                  placeholder="Ingrese el nombre de su evento"
                 />
               </div>
+
               <div className="input-group">
-                <label>Descripción del evento</label>
+                <label>
+                  Descripción del evento *{" "}
+                  {errors.eventDescription && (
+                    <span className="error"> {errors.eventDescription}</span>
+                  )}
+                </label>
                 <input
                   type="text"
                   onChange={(e) => setEventDescription(e.target.value)}
                   value={eventDescription}
-                  className="input"
-                  placeholder="Ingresa la descripción del evento"
+                  className={`input ${
+                    errors.eventDescription && "input-error"
+                  }`}
+                  placeholder="Ingrese la descripción de su evento"
                 />
               </div>
+
               <div className="input-group">
-                <label>Ubicación del evento</label>
+                <label>
+                  Ubicación del evento *{" "}
+                  {errors.location && (
+                    <span className="error"> {errors.location}</span>
+                  )}
+                </label>
                 <input
                   type="text"
                   onChange={(e) => setLocation(e.target.value)}
                   value={location}
-                  className="input"
-                  placeholder="Ingresa la ubicación del evento"
+                  className={`input ${errors.location && "input-error"}`}
+                  placeholder="Ingrese la ubicación de su evento"
                 />
               </div>
+
               <div className="buttons">
-                <button className="btn primary" onClick={createCalendarEvent}>
-                  Crear evento en el calendario
+                <button
+                  className="btn primary"
+                  onClick={createCalendarEvent}
+                  disabled={loading}
+                >
+                  Crear evento
                 </button>
-                <button className="btn secondary" onClick={signOut}>
-                  Cerrar Sesión
+                <button
+                  className="btn secondary"
+                  onClick={signOut}
+                  disabled={loading}
+                >
+                  Cerrar sesión
                 </button>
               </div>
             </div>
           </>
         ) : (
           <button className="btn primary" onClick={googleSignIn}>
-            Iniciar Sesión con Google
+            Iniciar sesión con Google
           </button>
         )}
       </div>
-      {session && (
+      <div className="googleCalendarContainer">
         <div className="googleCalendar">
           <iframe
-            src="https://calendar.google.com/calendar/embed?src=ivanlalvarez.22%40gmail.com&ctz=America%2FArgentina%2FBuenos_Aires"
-            frameBorder="0"
             title="Google Calendar"
-          ></iframe>
+            src="https://calendar.google.com/calendar/embed?src=ivanlalvarez.22%40gmail.com&ctz=America%2FArgentina%2FSalta"
+          />
         </div>
-      )}
+      </div>
     </div>
   );
 }
